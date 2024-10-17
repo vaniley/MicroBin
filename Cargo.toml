@@ -1,0 +1,11 @@
+# Cargo.toml
+[package]
+name = "MicroBin"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tray-item = "0.8"
+
+[build-dependencies]
+embed-resource = "2.3"
