@@ -1,4 +1,3 @@
-# Cargo.toml
 [package]
 name = "MicroBin"
 version = "0.1.0"
@@ -6,6 +5,20 @@ edition = "2021"
 
 [dependencies]
 tray-item = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.5"
 
 [build-dependencies]
 embed-resource = "2.3"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = 'abort'
+strip = true
+opt-level = 'z'
+
+[[bin]]
+name = "MicroBin"
+path = "src/main.rs"
+windows_subsystem = "windows"  # Скрытие консоли на Windows
