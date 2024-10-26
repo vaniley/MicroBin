@@ -5,6 +5,9 @@ use std::process::Command;
 use std::sync::mpsc;
 use serde::{Deserialize, Serialize};
 use tray_item::{IconSource, TrayItem};
+use windows::Win32::UI::Shell::SHEmptyRecycleBinW;
+use windows::Win32::Foundation::HWND;
+use windows::core::PCWSTR;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Config {
@@ -38,7 +41,7 @@ fn load_config() -> Config {
     } else {
         let default_config = Config::default();
         if let Ok(_) = fs::create_dir_all(config_path.parent().unwrap()) {
-            if let Ok(_) = fs::write(&config_path, toml::to_string_pretty(&default_config).unwrap()) {}
+            let _ = fs::write(&config_path, toml::to_string_pretty(&default_config).unwrap());
         }
         default_config
     }
@@ -50,21 +53,31 @@ fn get_config_path() -> std::path::PathBuf {
 }
 
 fn open_recycle_bin() {
-    if let Ok(_) = Command::new("explorer.exe").arg(r"shell:RecycleBinFolder").spawn() {}
+    let _ = Command::new("explorer.exe").arg(r"shell:RecycleBinFolder").spawn();
 }
 
 fn empty_recycle_bin() {
-    if let Ok(_) = Command::new("powershell.exe")
-        .args(&[
-            "-NoProfile",
-            "-WindowStyle", "Hidden",   // Скрытие окна PowerShell
-            "-Command",
-            "$RecycleBin = New-Object -ComObject Shell.Application; $RecycleBin.Namespace(0xA).Items() | Remove-Item -Force"
-        ])
-        .spawn()
-    {}
-}
+    unsafe {
+        // Flags for silent empty recycle bin
+        // SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND = 0x000000A4
+        const SHERB_NOCONFIRMATION: u32 = 0x00000001;
+        const SHERB_NOPROGRESSUI: u32 = 0x00000002;
+        const SHERB_NOSOUND: u32 = 0x00000004;
 
+        let flags = SHERB_NOCONFIRMATION | SHERB_NOPROGRESSUI | SHERB_NOSOUND;
+
+        // Call the WinAPI function to empty the recycle bin
+        let result = SHEmptyRecycleBinW(
+            HWND(0),           // Null HWND for no parent window
+            PCWSTR::null(),    // Null PCWSTR to empty all drives
+            flags
+        );
+        
+        if let Err(e) = result {
+            eprintln!("Failed to empty recycle bin: {:?}", e);
+        }
+    }
+}
 
 fn main() {
     let config = load_config();
@@ -73,21 +86,21 @@ fn main() {
     let (tx, rx) = mpsc::sync_channel(1);
 
     let open_tx = tx.clone();
-    if let Ok(_) = tray.add_menu_item(&config.open_label, move || {
+    let _ = tray.add_menu_item(&config.open_label, move || {
         open_tx.send(Message::Open).unwrap();
-    }) {}
+    });
 
     let empty_tx = tx.clone();
-    if let Ok(_) = tray.add_menu_item(&config.empty_label, move || {
+    let _ = tray.add_menu_item(&config.empty_label, move || {
         empty_tx.send(Message::Empty).unwrap();
-    }) {}
+    });
 
     tray.inner_mut().add_separator().unwrap();
 
     let quit_tx = tx.clone();
-    if let Ok(_) = tray.add_menu_item(&config.quit_label, move || {
+    let _ = tray.add_menu_item(&config.quit_label, move || {
         quit_tx.send(Message::Quit).unwrap();
-    }) {}
+    });
 
     loop {
         match rx.recv() {
@@ -98,4 +111,3 @@ fn main() {
         }
     }
 }
-
