@@ -1,4 +1,4 @@
-use microbin::{load_config, Config};
+use microbin::{empty_bin_failed, load_config, Config};
 use std::{os::windows::ffi::OsStrExt, path::Path, process::Command, sync::mpsc};
 use tray_item::{IconSource, TrayItem};
 use windows_sys::Win32::{
@@ -65,7 +65,7 @@ pub fn run() -> Result<(), String> {
     let config = match load_config(&config_path) {
         Ok(config) => config,
         Err(error) => {
-            report_error(&format!("Cannot load {}:\n{error}\n\nMicroBin will use defaults. The existing file is unchanged. Fix the file and restart MicroBin.", config_path.display()));
+            report_error(&format!("Cannot use configuration at {}:\n{error}\n\nMicroBin will use defaults. Existing files are not replaced. Check the settings and folder permissions, then restart MicroBin.", config_path.display()));
             Config::default()
         }
     };
@@ -119,8 +119,7 @@ pub fn run() -> Result<(), String> {
                 // A null root path selects all drives. The Shell owns confirmation and progress.
                 let result =
                     unsafe { SHEmptyRecycleBinW(0, std::ptr::null(), config.empty_flags()) };
-                // User cancellation is not an application failure.
-                if result < 0 && result != 0x800704C7u32 as i32 && result != 0x80004004u32 as i32 {
+                if empty_bin_failed(result) {
                     report_error(&format!(
                         "Cannot empty the Recycle Bin (HRESULT 0x{:08X}).",
                         result as u32

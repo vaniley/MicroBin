@@ -41,6 +41,7 @@ Windows controls whether progress appears and whether sound plays.
 Relative icon paths use the `config.toml` directory, not the working directory.
 Use TOML literal strings for Windows paths: `icon_path = 'C:\Icons\bin.ico'`.
 The icon is static. It does not track whether the Recycle Bin is full.
+If Explorer restarts, restart MicroBin to restore the custom icon and tooltip.
 
 Existing four-label configurations still work. Missing options use defaults.
 Unknown options, wrong types, blank labels, and oversized tooltips produce an error dialog.

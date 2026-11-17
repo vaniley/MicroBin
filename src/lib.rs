@@ -78,6 +78,11 @@ impl Config {
     }
 }
 
+/// Cancellation and an already-empty bin are not operation failures.
+pub fn empty_bin_failed(result: i32) -> bool {
+    result < 0 && !matches!(result as u32, 0x800704C7 | 0x80004004 | 0x8000FFFF)
+}
+
 /// Never replace unreadable or invalid user configuration.
 pub fn load_config(path: &Path) -> Result<Config, String> {
     match fs::read_to_string(path) {
@@ -94,16 +99,16 @@ pub fn load_config(path: &Path) -> Result<Config, String> {
             {
                 Ok(mut file) => file
                     .write_all(text.as_bytes())
-                    .map_err(|error| error.to_string())?,
+                    .map_err(|error| format!("Cannot write new configuration: {error}"))?,
                 Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
                     return fs::read_to_string(path)
-                        .map_err(|error| error.to_string())
+                        .map_err(|error| format!("Cannot read configuration: {error}"))
                         .and_then(|text| Config::parse(&text));
                 }
-                Err(error) => return Err(error.to_string()),
+                Err(error) => return Err(format!("Cannot create configuration: {error}")),
             }
             Ok(config)
         }
-        Err(error) => Err(error.to_string()),
+        Err(error) => Err(format!("Cannot read configuration: {error}")),
     }
 }

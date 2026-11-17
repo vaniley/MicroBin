@@ -117,7 +117,24 @@ fn bad_existing_file_is_not_overwritten() {
 fn inaccessible_path_returns_error_without_panicking() {
     let fixture = Fixture::new();
     assert!(load_config(&fixture.0).is_err());
-    assert!(load_config(&fixture.0.join("missing/config.toml")).is_err());
+    assert!(load_config(&fixture.0.join("missing/config.toml"))
+        .unwrap_err()
+        .starts_with("Cannot create configuration:"));
+}
+
+#[test]
+fn empty_bin_and_cancel_are_not_failures() {
+    for result in [
+        0,
+        1,
+        0x800704C7u32 as i32,
+        0x80004004u32 as i32,
+        0x8000FFFFu32 as i32,
+    ] {
+        assert!(!microbin::empty_bin_failed(result));
+    }
+    assert!(microbin::empty_bin_failed(0x80070005u32 as i32));
+    assert!(microbin::empty_bin_failed(0x80004005u32 as i32));
 }
 
 #[test]
