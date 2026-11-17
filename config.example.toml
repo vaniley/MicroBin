@@ -1,0 +1,16 @@
+# Copy this file beside MicroBin.exe as config.toml, then restart MicroBin.
+# Скопируйте рядом с MicroBin.exe как config.toml и перезапустите MicroBin.
+tray_label = "MicroBin"
+open_label = "Open"
+empty_label = "Empty"
+quit_label = "Quit"
+
+# Optional .ico file; relative paths use the config.toml directory.
+# Необязательный .ico файл; относительный путь считается от папки config.toml.
+icon_path = ""
+
+# Safer example: ask before deleting. The legacy default remains false.
+# Безопасный пример: подтверждение удаления. Старое значение по умолчанию — false.
+confirm_empty = true
+show_progress = true
+play_sound = false
