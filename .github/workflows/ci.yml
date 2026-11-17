@@ -30,6 +30,7 @@ jobs:
       - run: cargo test --locked -p tray-item --lib
       - run: cargo clippy --locked --all-targets -- -D warnings
       - run: cargo build --locked --release
+      - run: cargo clippy --locked -p tray-item --all-targets -- -D warnings
       - uses: actions/upload-artifact@v4
         with:
           name: MicroBin-windows-x64

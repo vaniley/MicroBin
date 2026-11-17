@@ -4,7 +4,7 @@ Source: https://crates.io/crates/tray-item/0.10.0
 Upstream: https://github.com/olback/tray-item-rs
 License: MIT; the upstream LICENSE is retained.
 
-The source modules and original package manifest come from the published 0.10.0 crate. Unrelated package examples and tooling are omitted. The workspace root controls build profiles. Formatting follows the workspace formatter. Six pre-existing Windows Clippy style warnings receive mechanical fixes so strict workspace lint checks remain clean.
+The Windows source modules come from the published 0.10.0 crate. This local copy supports Windows only, as does MicroBin. Linux/macOS modules, features, dependencies, examples and tooling are omitted. The workspace root controls build profiles. Formatting follows the workspace formatter. Six pre-existing Windows Clippy style warnings receive mechanical fixes so strict workspace lint checks remain clean.
 
 ## Windows recovery patch
 

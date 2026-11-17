@@ -1,3 +1,5 @@
+> This is a Windows-only local copy for MicroBin. See [PATCHES.md](PATCHES.md). The upstream README follows for attribution and API context; other platforms are not included here.
+
 # Multi-platform Tray Indicator
 
 [![Cargo Check](https://github.com/olback/tray-item-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/olback/tray-item-rs/actions/workflows/rust.yml) [![CircleCI](https://circleci.com/gh/olback/tray-item-rs/tree/master.svg?style=svg)](https://circleci.com/gh/olback/tray-item-rs/tree/master)
