@@ -41,7 +41,7 @@ Windows controls whether progress appears and whether sound plays.
 Relative icon paths use the `config.toml` directory, not the working directory.
 Use TOML literal strings for Windows paths: `icon_path = 'C:\Icons\bin.ico'`.
 The icon is static. It does not track whether the Recycle Bin is full.
-If Explorer restarts, restart MicroBin to restore the custom icon and tooltip.
+MicroBin restores the configured icon and tooltip after Explorer restarts.
 
 Existing four-label configurations still work. Missing options use defaults.
 Unknown options, wrong types, blank labels, and oversized tooltips produce an error dialog.
@@ -49,8 +49,9 @@ The app uses defaults and leaves existing configuration files unchanged.
 If a custom icon fails to load, the app uses its embedded icon.
 Fix the file and restart MicroBin.
 
-If the app cannot create configuration beside the executable, move the app to a writable directory.
-Updates do not rewrite existing settings.
+If configuration is missing and the folder denies creation, MicroBin uses defaults without a startup warning.
+Use a writable directory to save custom settings. Existing unreadable or invalid files still produce an error.
+MicroBin never replaces existing configuration files. Updates do not rewrite existing settings.
 
 ## Development
 
@@ -58,6 +59,7 @@ Windows builds require stable Rust with Cargo and MSVC build tools (Visual Studi
 
 ```powershell
 cargo test --locked
+cargo test --locked -p tray-item --lib
 cargo clippy --locked --all-targets -- -D warnings
 cargo build --locked --release
 ```
@@ -81,3 +83,5 @@ cargo build --locked --release --target x86_64-pc-windows-gnu
 
 Cross-compilation does not verify tray behavior. Check menus, icons, confirmation, cancellation, and errors on Windows.
 CI runs tests on Linux and Windows and uploads a Windows build. CI does not automate native UI checks.
+
+The build uses a local tray-item patch for tray recovery. See [vendor/tray-item/PATCHES.md](vendor/tray-item/PATCHES.md).

@@ -105,6 +105,9 @@ pub fn load_config(path: &Path) -> Result<Config, String> {
                         .map_err(|error| format!("Cannot read configuration: {error}"))
                         .and_then(|text| Config::parse(&text));
                 }
+                // Portable installs may be read-only. Do not warn on every launch
+                // when no settings exist; errors reading existing settings still surface.
+                Err(error) if error.kind() == io::ErrorKind::PermissionDenied => return Ok(config),
                 Err(error) => return Err(format!("Cannot create configuration: {error}")),
             }
             Ok(config)

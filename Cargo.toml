@@ -3,6 +3,11 @@ name = "MicroBin"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = ["vendor/tray-item"]
+default-members = ["."]
+resolver = "2"
+
 [lib]
 name = "microbin"
 
@@ -31,3 +36,6 @@ opt-level = 'z'
 [[bin]]
 name = "MicroBin"
 path = "src/main.rs"
+
+[patch.crates-io]
+tray-item = { path = "vendor/tray-item" }

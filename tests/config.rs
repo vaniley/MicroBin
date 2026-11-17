@@ -142,3 +142,32 @@ fn example_is_valid_and_enables_confirmation() {
     let config = Config::parse(include_str!("../config.example.toml")).unwrap();
     assert!(config.confirm_empty);
 }
+
+#[cfg(unix)]
+#[test]
+fn missing_config_in_read_only_folder_uses_defaults_without_writing() {
+    use std::os::unix::fs::PermissionsExt;
+    let fixture = Fixture::new();
+    fs::set_permissions(&fixture.0, fs::Permissions::from_mode(0o555)).unwrap();
+    let result = load_config(&fixture.path());
+    // Restore permissions before assertions so the fixture remains removable.
+    fs::set_permissions(&fixture.0, fs::Permissions::from_mode(0o755)).unwrap();
+    assert_eq!(result.unwrap(), Config::default());
+    assert!(!fixture.path().exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn unreadable_existing_config_still_reports_error() {
+    use std::os::unix::fs::PermissionsExt;
+    let fixture = Fixture::new();
+    let contents = "confirm_empty = true";
+    fs::write(fixture.path(), contents).unwrap();
+    fs::set_permissions(fixture.path(), fs::Permissions::from_mode(0o000)).unwrap();
+    let result = load_config(&fixture.path());
+    fs::set_permissions(fixture.path(), fs::Permissions::from_mode(0o600)).unwrap();
+    assert!(result
+        .unwrap_err()
+        .starts_with("Cannot read configuration:"));
+    assert_eq!(fs::read_to_string(fixture.path()).unwrap(), contents);
+}
